@@ -3,13 +3,15 @@
 A runnable baseline application for renewable generation prediction and forecast-versus-actual variance analysis.
 
 ## Features
+- ## Features
+
 - Loads the bundled `data/generation_forecast.csv` dataset.
-- Trains a Random Forest regression baseline to estimate actual generation.
-- Compares model performance with the supplied forecast baseline.
-- Uses a chronological, date-grouped holdout split to keep duplicate dates together.
+- Trains and evaluates multiple machine learning regression models to estimate actual generation.
+- Compares model performance with the supplied forecast benchmark.
+- Uses a chronological, date-grouped holdout split.
 - Exposes FastAPI endpoints for health, summary, records and interactive prediction.
-- Provides a responsive HTML dashboard.
-- Generates transparent, rule-based operational driver notes for irradiation, wind speed, temperature and outages.
+- Provides a responsive HTML dashboard with forecast-versus-actual charts.
+- Generates rule-based operational driver notes for irradiance, wind speed, temperature and outages..
 
 ## Run locally
 
@@ -50,7 +52,14 @@ Example request:
 ```
 
 ## Methodology
-The target is `actual_mwh`. Features include irradiation, wind speed, temperature, outage flag and the provided `forecast_mwh`. A Random Forest regressor is trained on the first 80% of unique dates and evaluated on the last 20% of unique dates. The supplied forecast is evaluated as a benchmark using the same test observations.
+
+The target variable is `actual_mwh`. Input features include irradiance, wind speed, temperature, outage flag and the supplied `forecast_mwh`.
+
+The application evaluates multiple regression models using a chronological, date-grouped holdout split. Linear Regression is the currently selected model in the dashboard.
+
+The supplied forecast is also evaluated as a benchmark using the same test observations.
+
+The supplied forecast benchmark currently performs better than the selected Linear Regression model on the holdout dataset. Therefore, the results should be treated as exploratory and not as proof of improved forecasting accuracy..
 
 Metrics:
 - MAE: mean absolute error in MWh.
