@@ -1,0 +1,1160 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Greenko | Generation Intelligence</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root {
+    --green: #14532d;
+    --green-light: #e8f5ec;
+    --background: #f4f7f5;
+    --text: #17231c;
+    --muted: #66736b;
+    --border: #e1e9e3;
+    --white: #ffffff;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--background);
+    color: var(--text);
+    font-family: Arial, sans-serif;
+}
+
+header {
+    background: linear-gradient(115deg, #103b29, #17613c);
+    color: white;
+    padding: 28px max(22px, calc((100% - 1180px) / 2));
+}
+
+.eyebrow {
+    font-size: 12px;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    opacity: .8;
+}
+
+h1 {
+    margin: 7px 0;
+    font-size: 32px;
+}
+
+header p {
+    margin: 5px 0 0;
+    opacity: .85;
+}
+
+main {
+    max-width: 1180px;
+    margin: 25px auto;
+    padding: 0 20px 45px;
+}
+
+.topline {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.status {
+    color: #166534;
+    background: #e3f4e8;
+    padding: 6px 12px;
+    border-radius: 30px;
+    font-size: 12px;
+}
+
+.error {
+    color: #b42318;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 19px;
+    box-shadow: 0 3px 12px #173a2410;
+}
+
+.metric-label {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.metric {
+    font-size: 27px;
+    font-weight: 700;
+    margin-top: 8px;
+}
+
+.sub, .muted, .note {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.section {
+    margin-top: 18px;
+}
+
+.section h2 {
+    font-size: 18px;
+    margin: 0 0 12px;
+}
+
+.two {
+    display: grid;
+    grid-template-columns: 1.1fr .9fr;
+    gap: 16px;
+}
+
+form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 13px;
+}
+
+label {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+input, select {
+    width: 100%;
+    border: 1px solid #d6e0d8;
+    border-radius: 8px;
+    padding: 11px;
+    font-size: 14px;
+    background: white;
+}
+
+button {
+    background: var(--green);
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 9px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #0e4225;
+}
+
+button:disabled {
+    opacity: .6;
+    cursor: wait;
+}
+
+.full {
+    grid-column: 1 / -1;
+}
+
+.result {
+    background: #f4f8f5;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 15px;
+    min-height: 75px;
+}
+
+.result strong {
+    font-size: 23px;
+}
+
+.driver {
+    border-left: 3px solid #70a981;
+    padding: 9px 11px;
+    margin: 9px 0;
+    background: #f8fbf8;
+    border-radius: 0 8px 8px 0;
+}
+
+.driver b {
+    display: block;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+th, td {
+    text-align: left;
+    padding: 11px 9px;
+    border-bottom: 1px solid var(--border);
+}
+
+th {
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.selected-row {
+    background: var(--green-light);
+    font-weight: 600;
+}
+
+.selected-label {
+    color: #166534;
+    font-size: 11px;
+}
+
+.note {
+    margin-top: 12px;
+    line-height: 1.6;
+}
+
+/* CHART STYLES */
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 18px;
+}
+
+.chart-card {
+    min-width: 0;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+/* RESPONSIVE DESIGN */
+
+@media(max-width: 850px) {
+    .grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .two, .charts-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media(max-width: 480px) {
+    .grid, form {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="eyebrow">Renewable Energy Analytics</div>
+    <h1>Generation Intelligence</h1>
+    <p>Power Generation Forecasting &amp; Variance Explanation Agent</p>
+</header>
+
+<main>
+
+<!-- OPERATIONS OVERVIEW -->
+
+<div class="topline">
+    <div>
+        <b>Operations Overview</b>
+        <div class="muted">
+            Generation performance and forecasting insights
+        </div>
+    </div>
+
+    <span class="status" id="apiStatus">Connecting...</span>
+</div>
+
+<!-- KPI CARDS -->
+
+<div class="grid">
+
+    <div class="card">
+        <div class="metric-label">Dataset Records</div>
+        <div class="metric" id="records">—</div>
+        <div class="sub">Total observations</div>
+    </div>
+
+    <div class="card">
+        <div class="metric-label">Average Forecast</div>
+        <div class="metric" id="forecast">—</div>
+        <div class="sub">MWh per record</div>
+    </div>
+
+    <div class="card">
+        <div class="metric-label">Average Actual</div>
+        <div class="metric" id="actual">—</div>
+        <div class="sub">MWh per record</div>
+    </div>
+
+    <div class="card">
+        <div class="metric-label">Average Variance</div>
+        <div class="metric" id="variance">—</div>
+        <div class="sub">Actual minus forecast (MWh)</div>
+    </div>
+
+</div>
+
+<!-- ANALYSIS AND MODEL EVALUATION -->
+
+<div class="section two">
+
+    <section class="card">
+
+        <h2>Run Generation Analysis</h2>
+
+        <p class="muted">
+            Enter operating conditions to estimate generation
+            and identify potential variance drivers.
+        </p>
+
+        <form id="analysisForm">
+
+            <div>
+                <label for="irr">Irradiance (W/m²)</label>
+                <input id="irr" type="number"
+                    min="0" max="1500" step="0.1"
+                    value="650" required>
+            </div>
+
+            <div>
+                <label for="wind">Wind Speed (m/s)</label>
+                <input id="wind" type="number"
+                    min="0" max="100" step="0.1"
+                    value="7.2" required>
+            </div>
+
+            <div>
+                <label for="temp">Temperature (°C)</label>
+                <input id="temp" type="number"
+                    min="-30" max="80" step="0.1"
+                    value="33" required>
+            </div>
+
+            <div>
+                <label for="outage">Outage Flag</label>
+                <select id="outage">
+                    <option value="0">No outage</option>
+                    <option value="1">Outage reported</option>
+                </select>
+            </div>
+
+            <div class="full">
+                <label for="fc">Baseline Forecast (MWh)</label>
+                <input id="fc" type="number"
+                    min="0" step="0.01"
+                    value="55" required>
+            </div>
+
+            <div class="full">
+                <button type="submit" id="runBtn">
+                    Run Analysis
+                </button>
+            </div>
+
+        </form>
+
+        <div class="result" id="result">
+            <span class="muted">
+                Enter operating conditions and click Run Analysis.
+            </span>
+        </div>
+
+    </section>
+
+    <!-- MODEL EVALUATION -->
+
+    <section class="card">
+
+        <h2>Model Evaluation</h2>
+
+        <p class="muted">
+            Comparison of machine learning models using a
+            chronological date-based holdout.
+        </p>
+
+        <div id="metrics">
+            <span class="muted">Loading model metrics...</span>
+        </div>
+
+        <p class="note">
+            MAE and RMSE are measured in MWh.
+            Lower values indicate smaller prediction errors.
+        </p>
+
+    </section>
+
+</div>
+
+<!-- GENERATION CHARTS -->
+
+<div class="section charts-grid">
+
+    <section class="card chart-card">
+
+        <h2>Forecast vs Actual Generation</h2>
+
+        <p class="muted">
+            Comparison of forecast and actual generation
+            across recent observations.
+        </p>
+
+        <div class="chart-container">
+            <canvas id="forecastChart"></canvas>
+        </div>
+
+    </section>
+
+    <section class="card chart-card">
+
+        <h2>Generation Variance Trend</h2>
+
+        <p class="muted">
+            Positive variance means actual generation was
+            above forecast; negative means it was below.
+        </p>
+
+        <div class="chart-container">
+            <canvas id="varianceChart"></canvas>
+        </div>
+
+    </section>
+
+</div>
+
+<!-- VARIANCE INSIGHT SUMMARY -->
+
+<div class="section card">
+
+    <h2>Variance Insight Summary</h2>
+
+    <p class="muted">
+        Automated insights from recent generation observations.
+    </p>
+
+    <div id="varianceInsights">
+        <span class="muted">Loading variance insights...</span>
+    </div>
+
+</div>
+
+<!-- RECENT OBSERVATIONS -->
+
+<div class="section card">
+
+    <h2>Recent Generation Observations</h2>
+
+    <div style="overflow-x:auto">
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Forecast (MWh)</th>
+                    <th>Actual (MWh)</th>
+                    <th>Variance (MWh)</th>
+                    <th>Outage</th>
+                </tr>
+            </thead>
+
+            <tbody id="recordsTable">
+                <tr>
+                    <td colspan="5">Loading observations...</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+<p class="note">
+    Decision-support prototype. Driver explanations are
+    rule-based indicators and should not be interpreted as
+    proven causal relationships.
+</p>
+
+</main>
+
+<script>
+
+// NUMBER FORMATTING
+
+function fmt(value, decimals = 2) {
+    const number = Number(value);
+
+    return Number.isFinite(number)
+        ? number.toFixed(decimals)
+        : "N/A";
+}
+
+
+// API REQUEST HELPER
+
+async function getJSON(url) {
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        throw new Error("API request failed: " + response.status);
+    }
+
+    return response.json();
+}
+
+
+// CHART INSTANCES
+
+let forecastChart = null;
+let varianceChart = null;
+
+
+// CREATE OR UPDATE CHARTS
+
+function updateCharts(rows) {
+
+    if (typeof Chart === "undefined") {
+        console.error("Chart.js could not be loaded.");
+        return;
+    }
+
+    const chartRows = rows.slice().reverse();
+
+    const labels = chartRows.map(row => row.date);
+
+    const forecasts = chartRows.map(
+        row => Number(row.forecast_mwh)
+    );
+
+    const actuals = chartRows.map(
+        row => Number(row.actual_mwh)
+    );
+
+    const variances = chartRows.map(
+        row => Number(row.variance_mwh)
+    );
+
+
+    // FORECAST VS ACTUAL
+
+    if (forecastChart) {
+        forecastChart.destroy();
+    }
+
+    forecastChart = new Chart(
+        document.getElementById("forecastChart"),
+        {
+            type: "line",
+
+            data: {
+                labels: labels,
+
+                datasets: [
+                    {
+                        label: "Forecast",
+                        data: forecasts,
+                        borderColor: "#2563eb",
+                        backgroundColor: "rgba(37, 99, 235, 0.10)",
+                        borderWidth: 2,
+                        tension: 0.3
+                    },
+                    {
+                        label: "Actual",
+                        data: actuals,
+                        borderColor: "#16a34a",
+                        backgroundColor: "rgba(22, 163, 74, 0.10)",
+                        borderWidth: 2,
+                        tension: 0.3
+                    }
+                ]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                interaction: {
+                    intersect: false,
+                    mode: "index"
+                },
+
+                plugins: {
+                    legend: {
+                        position: "bottom"
+                    }
+                },
+
+                scales: {
+                    y: {
+                        title: {
+                            display: true,
+                            text: "Generation (MWh)"
+                        }
+                    },
+
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Date"
+                        }
+                    }
+                }
+            }
+        }
+    );
+
+
+    // VARIANCE TREND
+
+    if (varianceChart) {
+        varianceChart.destroy();
+    }
+
+    varianceChart = new Chart(
+        document.getElementById("varianceChart"),
+        {
+            type: "bar",
+
+            data: {
+                labels: labels,
+
+                datasets: [
+                    {
+                        label: "Variance (MWh)",
+                        data: variances,
+
+                        backgroundColor: variances.map(
+                            value => value >= 0
+                                ? "#16a34a"
+                                : "#dc2626"
+                        ),
+
+                        borderRadius: 5
+                    }
+                ]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+
+                scales: {
+                    y: {
+                        title: {
+                            display: true,
+                            text: "Variance (MWh)"
+                        }
+                    },
+
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Date"
+                        }
+                    }
+                }
+            }
+        }
+    );
+
+}
+
+
+// VARIANCE INSIGHTS
+
+function updateVarianceInsights(rows) {
+
+    const validRows = rows.filter(row => {
+
+        return row.variance_mwh !== null &&
+            row.variance_mwh !== undefined &&
+            Number.isFinite(Number(row.variance_mwh));
+
+    });
+
+    const container =
+        document.getElementById("varianceInsights");
+
+    if (validRows.length === 0) {
+
+        container.innerHTML =
+            '<p class="muted">No valid variance observations are available.</p>';
+
+        return;
+    }
+
+
+    const averageVariance =
+        validRows.reduce(
+            (total, row) =>
+                total + Number(row.variance_mwh), 0
+        ) / validRows.length;
+
+
+    const highest = validRows.reduce(
+        (a, b) =>
+            Number(a.variance_mwh) > Number(b.variance_mwh)
+                ? a : b
+    );
+
+
+    const lowest = validRows.reduce(
+        (a, b) =>
+            Number(a.variance_mwh) < Number(b.variance_mwh)
+                ? a : b
+    );
+
+
+    const aboveCount = validRows.filter(
+        row => Number(row.variance_mwh) > 0
+    ).length;
+
+
+    const belowCount = validRows.filter(
+        row => Number(row.variance_mwh) < 0
+    ).length;
+
+
+    const equalCount = validRows.filter(
+        row => Number(row.variance_mwh) === 0
+    ).length;
+
+
+    let direction;
+
+    if (averageVariance > 0) {
+        direction = "Above forecast";
+    } else if (averageVariance < 0) {
+        direction = "Below forecast";
+    } else {
+        direction = "Equal to forecast";
+    }
+
+
+    container.innerHTML = `
+
+        <div class="driver">
+            <b>Overall Trend</b>
+            ${direction}
+        </div>
+
+        <div class="driver">
+            <b>Average Variance</b>
+            ${averageVariance > 0 ? "+" : ""}${fmt(averageVariance)} MWh
+        </div>
+
+        <div class="driver">
+            <b>Highest Positive Variance</b>
+            ${fmt(highest.variance_mwh)} MWh
+            (${highest.date})
+        </div>
+
+        <div class="driver">
+            <b>Lowest Negative Variance</b>
+            ${fmt(lowest.variance_mwh)} MWh
+            (${lowest.date})
+        </div>
+
+        <div class="driver">
+            <b>Observations Above Forecast</b>
+            ${aboveCount} of ${validRows.length}
+        </div>
+
+        <div class="driver">
+            <b>Observations Below Forecast</b>
+            ${belowCount} of ${validRows.length}
+        </div>
+
+        <div class="driver">
+            <b>Observations Equal to Forecast</b>
+            ${equalCount} of ${validRows.length}
+        </div>
+
+        <p class="note">
+            These insights describe observed forecast differences.
+            They do not establish the operational causes of those differences.
+        </p>
+
+    `;
+
+}
+
+
+// LOAD DASHBOARD
+
+async function loadDashboard() {
+
+    try {
+
+        const [summary, rows] = await Promise.all([
+
+            getJSON("/api/summary"),
+
+            getJSON("/api/records?limit=12")
+
+        ]);
+
+
+        // API STATUS
+
+        document.getElementById("apiStatus").textContent =
+            "API Connected";
+
+
+        // KPI CARDS
+
+        document.getElementById("records").textContent =
+            summary.records;
+
+        document.getElementById("forecast").textContent =
+            fmt(summary.average_forecast_mwh);
+
+        document.getElementById("actual").textContent =
+            fmt(summary.average_actual_mwh);
+
+        document.getElementById("variance").textContent =
+            (summary.average_variance_mwh > 0 ? "+" : "") +
+            fmt(summary.average_variance_mwh);
+
+
+        // MODEL COMPARISON
+
+        const m = summary.metrics;
+
+        const candidateRows = (m.candidate_results || [])
+            .map(model => {
+
+                const selected = model.name === m.model_name;
+
+                return `
+                    <tr class="${selected ? 'selected-row' : ''}">
+
+                        <td>
+                            ${model.name}
+
+                            ${
+                                selected
+                                ? '<span class="selected-label"> ★ Selected</span>'
+                                : ''
+                            }
+                        </td>
+
+                        <td>${fmt(model.mae)}</td>
+
+                        <td>${fmt(model.rmse)}</td>
+
+                    </tr>
+                `;
+
+            }).join("");
+
+
+        document.getElementById("metrics").innerHTML = `
+
+            <div class="driver">
+                <b>Selected Model</b>
+                ${m.model_name || "Not available"}
+            </div>
+
+            <h3 style="font-size:14px;margin:17px 0 8px;">
+                Model Performance Comparison
+            </h3>
+
+            <div style="overflow-x:auto">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Model</th>
+                            <th>MAE (MWh)</th>
+                            <th>RMSE (MWh)</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        ${
+                            candidateRows ||
+                            '<tr><td colspan="3">No model results available</td></tr>'
+                        }
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <h3 style="font-size:14px;margin:18px 0 8px;">
+                Selected Model Evaluation
+            </h3>
+
+            <div class="driver">
+                <b>MAE</b>
+                ${fmt(m.model_mae)} MWh
+            </div>
+
+            <div class="driver">
+                <b>RMSE</b>
+                ${fmt(m.model_rmse)} MWh
+            </div>
+
+            <div class="driver">
+                <b>R² Score</b>
+                ${m.model_r2 === null ? "N/A" : fmt(m.model_r2)}
+            </div>
+
+            <div class="driver">
+                <b>Provided Forecast MAE</b>
+                ${fmt(m.benchmark_mae)} MWh
+            </div>
+
+            <div class="driver">
+                <b>Provided Forecast RMSE</b>
+                ${fmt(m.benchmark_rmse)} MWh
+            </div>
+
+            <div class="muted">
+                Training: ${m.train_rows} rows ·
+                Testing: ${m.test_rows} rows ·
+                ${m.train_unique_dates} training dates ·
+                ${m.test_unique_dates} testing dates
+            </div>
+
+        `;
+
+
+        // UPDATE CHARTS
+
+        updateCharts(rows);
+
+
+        // UPDATE VARIANCE INSIGHTS
+
+        updateVarianceInsights(rows);
+
+
+        // RECENT OBSERVATIONS
+
+        document.getElementById("recordsTable").innerHTML =
+
+            rows.slice().reverse().map(row => `
+
+                <tr>
+
+                    <td>${row.date}</td>
+
+                    <td>${fmt(row.forecast_mwh)}</td>
+
+                    <td>${fmt(row.actual_mwh)}</td>
+
+                    <td>
+                        ${row.variance_mwh > 0 ? "+" : ""}
+                        ${fmt(row.variance_mwh)}
+                    </td>
+
+                    <td>
+                        ${row.outage_flag ? "Yes" : "No"}
+                    </td>
+
+                </tr>
+
+            `).join("");
+
+
+    } catch (error) {
+
+        document.getElementById("apiStatus").textContent =
+            "API Error";
+
+        document.getElementById("apiStatus").className =
+            "status error";
+
+        document.getElementById("metrics").innerHTML =
+            `<p class="error">${error.message}</p>`;
+
+        document.getElementById("varianceInsights").innerHTML =
+            `<p class="error">${error.message}</p>`;
+
+        console.error(error);
+
+    }
+
+}
+
+
+// RUN GENERATION ANALYSIS
+
+document.getElementById("analysisForm")
+.addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    const button = document.getElementById("runBtn");
+
+    const output = document.getElementById("result");
+
+    button.disabled = true;
+
+    button.textContent = "Analyzing...";
+
+
+    const body = {
+
+        irradiance_wm2:
+            Number(document.getElementById("irr").value),
+
+        wind_speed_ms:
+            Number(document.getElementById("wind").value),
+
+        temperature_c:
+            Number(document.getElementById("temp").value),
+
+        outage_flag:
+            Number(document.getElementById("outage").value),
+
+        forecast_mwh:
+            Number(document.getElementById("fc").value)
+
+    };
+
+
+    try {
+
+        const response = await fetch("/api/run", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify(body)
+
+        });
+
+
+        const result = await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                result.detail || "Analysis failed"
+            );
+
+        }
+
+
+        output.innerHTML = `
+
+            <div class="muted">
+                Model: ${result.model}
+            </div>
+
+            <strong>
+                ${fmt(result.predicted_actual_mwh)} MWh
+            </strong>
+
+            <div>Estimated actual generation</div>
+
+            <p>
+                <b>Variance:</b>
+
+                ${result.variance_mwh > 0 ? "+" : ""}
+                ${fmt(result.variance_mwh)} MWh
+
+                (${
+                    result.variance_percent === null
+                    ? "N/A"
+                    : fmt(result.variance_percent) + "%"
+                })
+            </p>
+
+            <b>${result.summary}</b>
+
+            <div style="margin-top:12px">
+
+                <b>Potential Drivers</b>
+
+                ${
+                    (result.drivers || []).map(driver => `
+
+                        <div class="driver">
+
+                            <b>
+                                ${driver.driver} ·
+                                ${driver.direction}
+                            </b>
+
+                            <span class="muted">
+                                ${driver.detail}
+                            </span>
+
+                        </div>
+
+                    `).join("")
+                }
+
+            </div>
+
+            <p class="note">
+                ${result.method_note || ""}
+            </p>
+
+        `;
+
+
+    } catch (error) {
+
+        output.innerHTML = `
+            <span class="error">${error.message}</span>
+        `;
+
+    } finally {
+
+        button.disabled = false;
+
+        button.textContent = "Run Analysis";
+
+    }
+
+});
+
+
+// INITIALIZE DASHBOARD
+
+loadDashboard();
+
+</script>
+
+</body>
+</html>
